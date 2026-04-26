@@ -1,0 +1,20 @@
+- key: clockout
+  name: "Clockout DC"
+  url: "https://www.clockoutdc.com/events"
+  schedule: "0 6 * * *"
+  module: "scripts.data_import.clockout.run:ClockoutSource"
+  enabled: true
+
+- key: washingtonian
+  name: "Washingtonian — Things to Do"
+  url: "https://washingtonian.com/sections/things-to-do/"
+  schedule: "30 6 * * *"
+  module: "scripts.data_import.washingtonian.run:WashingtonianSource"
+  enabled: false
+
+- key: 730dc
+  name: "730DC"
+  url: "REPLACE_WITH_PUBLISHED_DOC_URL"
+  schedule: "0 7 * * *"
+  module: "scripts.data_import.dc730.run:DC730Source"
+  enabled: false
