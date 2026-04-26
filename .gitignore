@@ -16,6 +16,9 @@ build/
 # brainstorm working dir
 .superpowers/
 
+# supabase CLI cache
+supabase/.temp/
+
 # python
 __pycache__/
 *.py[cod]
