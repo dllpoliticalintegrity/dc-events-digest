@@ -1,0 +1,33 @@
+# env
+.env
+.env.local
+.env.*.local
+
+# data dumps
+*.csv
+
+# logs
+logs/
+
+# build output
+dist/
+build/
+
+# brainstorm working dir
+.superpowers/
+
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# node / bun
+node_modules/
+.bun/
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
