@@ -1,0 +1,33 @@
+[project]
+name = "dc-events-digest-ingest"
+version = "0.1.0"
+description = "Ingestion pipelines for dc-events-digest"
+requires-python = ">=3.11"
+dependencies = [
+  "requests>=2.31",
+  "beautifulsoup4>=4.12",
+  "supabase>=2.4",
+  "anthropic>=0.40",
+  "pyyaml>=6.0",
+  "python-dateutil>=2.9",
+  "pytz>=2024.1",
+  "feedparser>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "pytest-mock>=3.12",
+  "responses>=0.25",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["scripts*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
