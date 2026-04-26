@@ -192,7 +192,7 @@ import '@testing-library/jest-dom/vitest'
 ```json
 "scripts": {
   "dev": "vite",
-  "build": "tsc && vite build",
+  "build": "tsc -b && vite build",
   "lint": "eslint .",
   "preview": "vite preview",
   "test": "vitest run",
