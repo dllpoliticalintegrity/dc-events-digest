@@ -1,0 +1,42 @@
+name: ingest
+on:
+  schedule:
+    - cron: "0 6 * * *"   # daily 06:00 UTC; per-source schedules are documented in sources.yaml
+  workflow_dispatch:
+    inputs:
+      source:
+        description: "Source key (clockout | washingtonian | 730dc | all)"
+        required: true
+        default: "all"
+      dry_run:
+        description: "Dry run (true/false)"
+        required: false
+        default: "false"
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        source: [clockout, washingtonian, 730dc]
+    env:
+      SUPABASE_URL:               ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY:          ${{ secrets.SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY:  ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      ANTHROPIC_API_KEY:          ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install -e .
+      - name: Skip if not in scope
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.source != 'all' && github.event.inputs.source != matrix.source
+        run: echo "skipping ${{ matrix.source }}" && exit 0
+      - name: Run ${{ matrix.source }}
+        if: github.event_name != 'workflow_dispatch' || github.event.inputs.source == 'all' || github.event.inputs.source == matrix.source
+        run: |
+          DRY_FLAG=""
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then DRY_FLAG="--dry-run"; fi
+          MODULE=$(python -c "import yaml; s=[x for x in yaml.safe_load(open('scripts/sources.yaml')) if x['key']=='${{ matrix.source }}'][0]; print(s['module'].split(':')[0])")
+          python -m "$MODULE" $DRY_FLAG
