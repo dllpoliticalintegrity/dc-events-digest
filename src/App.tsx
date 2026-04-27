@@ -1,10 +1,14 @@
-function App() {
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { CalendarPage } from './pages/CalendarPage'
+import { DevComponentsPage } from './pages/DevComponentsPage'
+
+export default function App() {
   return (
-    <main className="min-h-screen p-8 bg-paper text-ink font-serif">
-      <h1 className="text-4xl">DC Events Digest</h1>
-      <p className="font-mono text-sm text-muted mt-2">Scaffold OK · Tailwind OK · brand tokens OK</p>
-    </main>
+    <Routes>
+      <Route path="/" element={<CalendarPage />} />
+      <Route path="/week/:isoDate" element={<CalendarPage />} />
+      <Route path="/dev/components" element={<DevComponentsPage />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   )
 }
-
-export default App
