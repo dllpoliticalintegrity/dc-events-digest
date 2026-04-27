@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { EventRow } from '@/hooks/useEventsForWeek'
+import { sourceLabel } from '@/lib/sourceLabels'
 
 export function EventDetailModal({
   event, onClose,
@@ -67,6 +68,10 @@ export function EventDetailModal({
 
         <div className="font-mono text-[10px] text-muted uppercase mt-2">
           {event.type}{tags.length > 0 ? ` · ${tags.join(' · ')}` : ''}
+        </div>
+
+        <div className="font-mono text-[10px] text-muted mt-1">
+          via {sourceLabel(event.source)}
         </div>
 
         {event.description && (

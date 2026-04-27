@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase'
 import { Header } from '@/components/layout/Header'
 import { EmptyState } from '@/components/layout/EmptyState'
 import type { EventRow } from '@/hooks/useEventsForWeek'
+import { sourceLabel } from '@/lib/sourceLabels'
 
 export function EventDetailPage() {
   const { id } = useParams()
@@ -41,6 +42,9 @@ export function EventDetailPage() {
       {event.venue_name && <div className="font-mono text-sm text-muted">{event.venue_name}{event.neighborhood ? ` · ${event.neighborhood}` : ''}</div>}
       {event.cost_text && <div className="font-mono text-sm text-muted">{event.cost_text}</div>}
       {tags.length > 0 && <div className="font-mono text-xs text-muted mt-2">{tags.join(' · ')}</div>}
+      <div className="font-mono text-[10px] text-muted mt-1">
+        via {sourceLabel(event.source)}
+      </div>
       {event.description && <p className="font-serif text-base mt-4 leading-relaxed">{event.description}</p>}
       {event.url && (
         <a href={event.url} target="_blank" rel="noreferrer" className="font-mono text-xs underline mt-6 inline-block">

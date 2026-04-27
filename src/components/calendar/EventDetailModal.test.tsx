@@ -31,6 +31,7 @@ describe('EventDetailModal', () => {
     expect(screen.getByText(/NW/)).toBeInTheDocument()
     expect(screen.getByText(/Free/)).toBeInTheDocument()
     expect(screen.getByText(/Closing concert/)).toBeInTheDocument()
+    expect(screen.getByText(/via Clockout DC/)).toBeInTheDocument()
     const sourceLink = screen.getByText(/See source/).closest('a')
     expect(sourceLink).toHaveAttribute('href', 'https://example.test/show')
     expect(sourceLink).toHaveAttribute('target', '_blank')

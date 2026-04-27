@@ -58,4 +58,10 @@ describe('WeekListPaginated', () => {
     render(<MemoryRouter><WeekListPaginated events={[ev('a', 9, 'Solo')] as any} onSelectEvent={() => {}} /></MemoryRouter>)
     expect(screen.getByText(/ALL THIS WEEK · 1 EVENT$/)).toBeInTheDocument()
   })
+
+  it('shows the friendly source name on each row', () => {
+    const event = { ...ev('x', 9, 'Show'), source: 'clockout' }
+    render(<MemoryRouter><WeekListPaginated events={[event] as any} onSelectEvent={() => {}} /></MemoryRouter>)
+    expect(screen.getByText(/Clockout DC/)).toBeInTheDocument()
+  })
 })

@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import type { EventRow } from '@/hooks/useEventsForWeek'
 import { formatTime } from '@/lib/dates'
+import { sourceLabel } from '@/lib/sourceLabels'
 
 const PAGE_SIZE = 10
 const DAYS_SHORT = ['SUN','MON','TUE','WED','THU','FRI','SAT']
@@ -59,6 +60,9 @@ export function WeekListPaginated({ events, onSelectEvent }: { events: EventRow[
                 <span className="font-serif text-sm text-ink flex-1 truncate">{e.title}</span>
                 <span className="font-mono text-[10px] text-muted uppercase whitespace-nowrap hidden sm:inline">
                   {e.type}
+                </span>
+                <span className="font-mono text-[10px] text-muted whitespace-nowrap hidden md:inline">
+                  · {sourceLabel(e.source)}
                 </span>
               </button>
             </li>

@@ -16,6 +16,7 @@ describe('EventCard', () => {
     expect(screen.getByText(/Sculpture Garden/)).toBeInTheDocument()
     expect(screen.getByText(/Free/)).toBeInTheDocument()
     expect(screen.getByText(/free/)).toBeInTheDocument()
+    expect(screen.getByText(/via Clockout DC/i)).toBeInTheDocument()
   })
 
   it('calls onClick when the card is clicked', () => {

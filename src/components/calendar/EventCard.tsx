@@ -1,5 +1,6 @@
 import type { EventRow } from '@/hooks/useEventsForWeek'
 import { formatTime } from '@/lib/dates'
+import { sourceLabel } from '@/lib/sourceLabels'
 
 const TYPE_BORDER: Record<string, string> = {
   music: 'border-l-stamp',
@@ -29,6 +30,9 @@ export function EventCard({
         {tags.length > 0 && (
           <div className="font-mono text-[10px] text-muted mt-1">{tags.join(' · ')}</div>
         )}
+        <div className="font-mono text-[10px] text-muted mt-1 uppercase">
+          via {sourceLabel(event.source)}
+        </div>
       </div>
     </button>
   )
