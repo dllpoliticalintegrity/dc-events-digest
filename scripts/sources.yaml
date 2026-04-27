@@ -10,7 +10,7 @@
   url: "https://washingtonian.com/sections/things-to-do/"
   schedule: "30 6 * * *"
   module: "scripts.data_import.washingtonian.run:WashingtonianSource"
-  enabled: false
+  enabled: true
 
 - key: 730dc
   name: "730DC"
