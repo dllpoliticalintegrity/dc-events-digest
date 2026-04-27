@@ -28,7 +28,7 @@ export function WeekStrip({
             <div className="font-mono text-[10px] text-muted">{DAY_INITIALS[i]}</div>
             <div className="text-base">{d.getUTCDate()}</div>
             <div className="flex gap-0.5 justify-center mt-0.5 h-1">
-              {markers.slice(0, 3).map((m, idx) => (
+              {markers.slice(0, 3).map((_, idx) => (
                 <span key={idx} className="w-1.5 h-1 bg-stamp rounded-sm" />
               ))}
             </div>

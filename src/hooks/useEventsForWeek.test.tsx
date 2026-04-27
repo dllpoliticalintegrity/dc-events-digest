@@ -9,7 +9,6 @@ vi.mock('@/lib/supabase', () => {
   const lt = vi.fn().mockReturnThis()
   const order = vi.fn().mockReturnThis()
   const select = vi.fn().mockReturnThis()
-  const from = vi.fn().mockReturnThis()
   const queryFn = { select, eq, gte, lt, order, then: undefined as any }
   // .then resolves the chain
   ;(queryFn as any).then = (resolve: any) =>

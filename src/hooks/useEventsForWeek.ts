@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { Database } from '@/lib/supabase-types'
-import { sevenDays, isoDateString } from '@/lib/dates'
+import { isoDateString } from '@/lib/dates'
 
 export type EventRow = Database['public']['Tables']['events']['Row']
 
