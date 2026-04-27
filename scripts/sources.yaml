@@ -14,7 +14,7 @@
 
 - key: 730dc
   name: "730DC"
-  url: "REPLACE_WITH_PUBLISHED_DOC_URL"
+  url: "https://docs.google.com/document/d/e/2PACX-1vQH4TZ_gxv1qw9Gy-eYuSY4brkLSYcWnG_81nR2ZsQXf1Y2LjqMLzyosyDvPQdJ-Xk4mfkp7a9ehfzq/pub"
   schedule: "0 7 * * *"
   module: "scripts.data_import.dc730.run:DC730Source"
-  enabled: false
+  enabled: true
