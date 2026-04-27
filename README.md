@@ -1,0 +1,53 @@
+# DC Events Digest
+
+A curated weekly calendar of things happening in DC — civic, community, cultural — pulled daily from local sources.
+
+## Architecture
+
+Two halves separated by Supabase:
+
+- **Ingestion**: Python jobs in GitHub Actions (daily cron) → write to `staging_events` → SQL `promote_pending_events()` garbage-filters into `public.events`.
+- **Frontend**: Vite + React + TS + Tailwind + shadcn/ui SPA, hosted on Vercel, reads `public.events` via supabase-js.
+
+See [`docs/superpowers/specs/2026-04-26-dc-events-digest-design.md`](docs/superpowers/specs/2026-04-26-dc-events-digest-design.md) for the full design.
+
+## Local development
+
+### Frontend
+
+```bash
+bun install
+cp .env.example .env  # fill in Supabase URL + anon key
+bun run dev           # http://localhost:5173
+bun run test          # unit tests (Vitest)
+bun run e2e           # smoke (Playwright; requires service-role key)
+bun run build         # production build → dist/
+```
+
+### Ingestion
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -e ".[dev]"
+pytest tests/ -v                     # all tests (DB tests need a real Supabase project)
+python -m scripts.data_import.clockout.run --dry-run --limit 5
+```
+
+### Adding a new source
+
+1. Create `scripts/data_import/<key>/run.py` with a `SourceBase` subclass (see existing sources).
+2. Add an entry to `scripts/sources.yaml`.
+3. Add a fixture under `tests/fixtures/<key>/` and a parser/extractor test.
+4. Set `enabled: true` in `sources.yaml` once tests pass.
+
+The GitHub Actions ingest workflow's matrix already includes the new source if you also add it to the `matrix.source` list in `.github/workflows/ingest.yml`.
+
+## Deploy
+
+- **Frontend**: Vercel project connected to this repo's `main` branch. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in Vercel env vars.
+- **Ingestion**: GitHub Actions runs `.github/workflows/ingest.yml` daily. Required repo secrets: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `ANTHROPIC_API_KEY`.
+
+## License
+
+Not yet licensed. Add a `LICENSE` file before making the repo public.
