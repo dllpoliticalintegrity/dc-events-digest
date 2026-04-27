@@ -29,6 +29,8 @@ venv/
 # node / bun
 node_modules/
 .bun/
+# we use bun, not npm — keep package-lock out of the tree
+package-lock.json
 
 # IDE
 .vscode/
