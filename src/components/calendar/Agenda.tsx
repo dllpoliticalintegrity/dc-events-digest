@@ -3,11 +3,12 @@ import { formatDayHeading } from '@/lib/dates'
 import type { EventRow } from '@/hooks/useEventsForWeek'
 
 export function Agenda({
-  day, events, eventTags,
+  day, events, eventTags, onSelectEvent,
 }: {
   day: Date
   events: EventRow[]
   eventTags: Record<string, string[]>
+  onSelectEvent: (e: EventRow) => void
 }) {
   const sameDay = events.filter(e => {
     const d = new Date(e.start_at)
@@ -29,7 +30,9 @@ export function Agenda({
           No events match your filters this day.
         </div>
       ) : (
-        sameDay.map(e => <EventCard key={e.id} event={e} tags={eventTags[e.id] ?? []} />)
+        sameDay.map(e => (
+          <EventCard key={e.id} event={e} tags={eventTags[e.id] ?? []} onClick={() => onSelectEvent(e)} />
+        ))
       )}
     </section>
   )

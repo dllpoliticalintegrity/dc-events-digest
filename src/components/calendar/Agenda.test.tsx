@@ -9,14 +9,14 @@ const events = [
 
 describe('Agenda', () => {
   it('shows day heading + event count', () => {
-    render(<MemoryRouter><Agenda day={new Date('2026-04-26T12:00:00Z')} events={events as any} eventTags={{}} /></MemoryRouter>)
+    render(<MemoryRouter><Agenda day={new Date('2026-04-26T12:00:00Z')} events={events as any} eventTags={{}} onSelectEvent={() => {}} /></MemoryRouter>)
     expect(screen.getByText(/SUN · APR 26/)).toBeInTheDocument()
     expect(screen.getByText(/1 EVENT/)).toBeInTheDocument()
     expect(screen.getByText('Show A')).toBeInTheDocument()
   })
 
   it('shows empty state when no events', () => {
-    render(<MemoryRouter><Agenda day={new Date('2026-04-26T12:00:00Z')} events={[] as any} eventTags={{}} /></MemoryRouter>)
+    render(<MemoryRouter><Agenda day={new Date('2026-04-26T12:00:00Z')} events={[] as any} eventTags={{}} onSelectEvent={() => {}} /></MemoryRouter>)
     expect(screen.getByText(/No events match/i)).toBeInTheDocument()
   })
 })

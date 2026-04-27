@@ -32,7 +32,7 @@ export function DevComponentsPage() {
       <h2 className="font-mono text-xs text-muted uppercase mt-6">— TagChips —</h2>
       <TagChips selected={tags} onToggle={(t) => setTags(s => s.includes(t) ? s.filter(x => x!==t) : [...s, t])} />
       <h2 className="font-mono text-xs text-muted uppercase mt-6">— EventCard —</h2>
-      <EventCard event={sample as any} tags={['free', 'outdoor']} />
+      <EventCard event={sample as any} tags={['free', 'outdoor']} onClick={() => {}} />
       <h2 className="font-mono text-xs text-muted uppercase mt-6">— EmptyState —</h2>
       <EmptyState message="NO EVENTS" hint="check back tomorrow" />
     </div>

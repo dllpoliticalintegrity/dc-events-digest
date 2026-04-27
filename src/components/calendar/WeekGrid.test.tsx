@@ -1,5 +1,5 @@
 // src/components/calendar/WeekGrid.test.tsx
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { WeekGrid } from './WeekGrid'
@@ -18,7 +18,7 @@ function ev(id: string, day: number, hourUtc: number, title: string, type = 'mus
 
 describe('WeekGrid', () => {
   it('renders 7 day-column headers (Mon–Sun)', () => {
-    render(<MemoryRouter><WeekGrid weekStart={monday} events={[]} eventTags={{}} /></MemoryRouter>)
+    render(<MemoryRouter><WeekGrid weekStart={monday} events={[]} eventTags={{}} onSelectEvent={() => {}} /></MemoryRouter>)
     ;['MON','TUE','WED','THU','FRI','SAT','SUN'].forEach(d => {
       expect(screen.getByText(d)).toBeInTheDocument()
     })
@@ -28,7 +28,7 @@ describe('WeekGrid', () => {
 
   it('shows up to 5 events per day; surfaces "+N more" when there are >5', () => {
     const events = Array.from({length: 7}, (_, i) => ev(`e${i}`, 21, 17, `Event ${i+1}`))  // 7 events on Apr 21
-    render(<MemoryRouter><WeekGrid weekStart={monday} events={events as any} eventTags={{}} /></MemoryRouter>)
+    render(<MemoryRouter><WeekGrid weekStart={monday} events={events as any} eventTags={{}} onSelectEvent={() => {}} /></MemoryRouter>)
     // Five visible
     expect(screen.getByText('Event 1')).toBeInTheDocument()
     expect(screen.getByText('Event 5')).toBeInTheDocument()
@@ -40,22 +40,23 @@ describe('WeekGrid', () => {
 
   it('clicking "+N more" expands the column to show all events', () => {
     const events = Array.from({length: 7}, (_, i) => ev(`e${i}`, 21, 17, `Event ${i+1}`))
-    render(<MemoryRouter><WeekGrid weekStart={monday} events={events as any} eventTags={{}} /></MemoryRouter>)
+    render(<MemoryRouter><WeekGrid weekStart={monday} events={events as any} eventTags={{}} onSelectEvent={() => {}} /></MemoryRouter>)
     fireEvent.click(screen.getByText('+2 more'))
     expect(screen.getByText('Event 6')).toBeInTheDocument()
     expect(screen.getByText('Event 7')).toBeInTheDocument()
     expect(screen.getByText('show less')).toBeInTheDocument()
   })
 
-  it('event chips link to /event/:id', () => {
+  it('calls onSelectEvent when chip is clicked', () => {
+    const onSelect = vi.fn()
     const events = [ev('abc', 22, 19, 'Talk Show')]
-    render(<MemoryRouter><WeekGrid weekStart={monday} events={events as any} eventTags={{}} /></MemoryRouter>)
-    const link = screen.getByText('Talk Show').closest('a')
-    expect(link).toHaveAttribute('href', '/event/abc')
+    render(<MemoryRouter><WeekGrid weekStart={monday} events={events as any} eventTags={{}} onSelectEvent={onSelect} /></MemoryRouter>)
+    fireEvent.click(screen.getByText('Talk Show'))
+    expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ id: 'abc' }))
   })
 
   it('shows an em-dash placeholder for empty days', () => {
-    render(<MemoryRouter><WeekGrid weekStart={monday} events={[]} eventTags={{}} /></MemoryRouter>)
+    render(<MemoryRouter><WeekGrid weekStart={monday} events={[]} eventTags={{}} onSelectEvent={() => {}} /></MemoryRouter>)
     // 7 placeholders (one per day column)
     expect(screen.getAllByText('—')).toHaveLength(7)
   })

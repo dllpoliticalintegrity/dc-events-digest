@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import { sevenDays, formatTime } from '@/lib/dates'
 import type { EventRow } from '@/hooks/useEventsForWeek'
 
@@ -20,9 +19,10 @@ interface WeekGridProps {
   weekStart: Date
   events: EventRow[]
   eventTags: Record<string, string[]>
+  onSelectEvent: (e: EventRow) => void
 }
 
-function DayColumn({ day, events }: { day: Date; events: EventRow[] }) {
+function DayColumn({ day, events, onSelectEvent }: { day: Date; events: EventRow[]; onSelectEvent: (e: EventRow) => void }) {
   const [expanded, setExpanded] = useState(false)
 
   const todayUtc = new Date()
@@ -75,10 +75,10 @@ function DayColumn({ day, events }: { day: Date; events: EventRow[] }) {
             {visible.map(e => {
               const border = TYPE_BORDER[e.type] ?? 'border-l-gray-400'
               return (
-                <Link
+                <button
                   key={e.id}
-                  to={`/event/${e.id}`}
-                  className={`block border-l-2 ${border} pl-1 bg-white hover:bg-gray-50`}
+                  onClick={() => onSelectEvent(e)}
+                  className={`block w-full text-left border-l-2 ${border} pl-1 bg-white hover:bg-gray-50`}
                 >
                   <div className="font-mono text-[9px] text-muted leading-tight">
                     {formatTime(e.start_at)}
@@ -86,7 +86,7 @@ function DayColumn({ day, events }: { day: Date; events: EventRow[] }) {
                   <div className="font-sans text-[10px] text-ink leading-tight overflow-hidden text-ellipsis whitespace-nowrap">
                     {e.title}
                   </div>
-                </Link>
+                </button>
               )
             })}
             {overflow > 0 && !expanded && (
@@ -112,13 +112,13 @@ function DayColumn({ day, events }: { day: Date; events: EventRow[] }) {
   )
 }
 
-export function WeekGrid({ weekStart, events }: WeekGridProps) {
+export function WeekGrid({ weekStart, events, onSelectEvent }: WeekGridProps) {
   const days = sevenDays(weekStart)
 
   return (
     <div className="md:grid md:grid-cols-7 md:gap-2 flex overflow-x-auto snap-x snap-mandatory gap-2">
       {days.map(day => (
-        <DayColumn key={day.toISOString()} day={day} events={events} />
+        <DayColumn key={day.toISOString()} day={day} events={events} onSelectEvent={onSelectEvent} />
       ))}
     </div>
   )

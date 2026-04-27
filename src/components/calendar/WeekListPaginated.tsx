@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react'
-import { Link } from 'react-router-dom'
 import type { EventRow } from '@/hooks/useEventsForWeek'
 import { formatTime } from '@/lib/dates'
 
@@ -22,7 +21,7 @@ function formatDayLabel(iso: string): string {
   return `${dow} ${month}/${day}`
 }
 
-export function WeekListPaginated({ events }: { events: EventRow[] }) {
+export function WeekListPaginated({ events, onSelectEvent }: { events: EventRow[]; onSelectEvent: (e: EventRow) => void }) {
   const [page, setPage] = useState(0)
 
   const sorted = useMemo(
@@ -47,9 +46,9 @@ export function WeekListPaginated({ events }: { events: EventRow[] }) {
           const border = TYPE_BORDER[e.type] ?? 'border-l-gray-400'
           return (
             <li key={e.id}>
-              <Link
-                to={`/event/${e.id}`}
-                className={`flex items-baseline gap-3 bg-white border border-gray-300 ${border} border-l-[3px] px-3 py-2 hover:bg-paper`}
+              <button
+                onClick={() => onSelectEvent(e)}
+                className={`flex items-baseline gap-3 w-full text-left bg-white border border-gray-300 ${border} border-l-[3px] px-3 py-2 hover:bg-paper`}
               >
                 <span className="font-mono text-[11px] text-muted whitespace-nowrap min-w-[80px]">
                   {formatDayLabel(e.start_at)}
@@ -61,7 +60,7 @@ export function WeekListPaginated({ events }: { events: EventRow[] }) {
                 <span className="font-mono text-[10px] text-muted uppercase whitespace-nowrap hidden sm:inline">
                   {e.type}
                 </span>
-              </Link>
+              </button>
             </li>
           )
         })}

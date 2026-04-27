@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { WeekListPaginated } from './WeekListPaginated'
@@ -15,13 +15,13 @@ function ev(id: string, hour: number, title: string, type = 'music') {
 
 describe('WeekListPaginated', () => {
   it('renders nothing when events list is empty', () => {
-    const { container } = render(<MemoryRouter><WeekListPaginated events={[]} /></MemoryRouter>)
+    const { container } = render(<MemoryRouter><WeekListPaginated events={[]} onSelectEvent={() => {}} /></MemoryRouter>)
     expect(container.firstChild).toBeNull()
   })
 
   it('shows up to 10 rows on the first page and a count header', () => {
     const events = Array.from({length: 15}, (_, i) => ev(`e${i}`, 9 + i, `Event ${i+1}`))
-    render(<MemoryRouter><WeekListPaginated events={events as any} /></MemoryRouter>)
+    render(<MemoryRouter><WeekListPaginated events={events as any} onSelectEvent={() => {}} /></MemoryRouter>)
     expect(screen.getByText(/ALL THIS WEEK · 15 EVENTS/)).toBeInTheDocument()
     expect(screen.getByText('Event 1')).toBeInTheDocument()
     expect(screen.getByText('Event 10')).toBeInTheDocument()
@@ -31,7 +31,7 @@ describe('WeekListPaginated', () => {
 
   it('paginates next + prev correctly', () => {
     const events = Array.from({length: 23}, (_, i) => ev(`e${i}`, 9, `Event ${i+1}`))
-    render(<MemoryRouter><WeekListPaginated events={events as any} /></MemoryRouter>)
+    render(<MemoryRouter><WeekListPaginated events={events as any} onSelectEvent={() => {}} /></MemoryRouter>)
     expect(screen.getByText('page 1 of 3')).toBeInTheDocument()
     fireEvent.click(screen.getByLabelText('next page'))
     expect(screen.getByText('Event 11')).toBeInTheDocument()
@@ -47,14 +47,15 @@ describe('WeekListPaginated', () => {
     expect(screen.getByText('page 2 of 3')).toBeInTheDocument()
   })
 
-  it('rows link to /event/:id', () => {
-    render(<MemoryRouter><WeekListPaginated events={[ev('abc', 17, 'Talk')]} /></MemoryRouter>)
-    const link = screen.getByText('Talk').closest('a')
-    expect(link).toHaveAttribute('href', '/event/abc')
+  it('calls onSelectEvent when a row is clicked', () => {
+    const onSelect = vi.fn()
+    render(<MemoryRouter><WeekListPaginated events={[ev('abc', 17, 'Talk')] as any} onSelectEvent={onSelect} /></MemoryRouter>)
+    fireEvent.click(screen.getByText('Talk'))
+    expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ id: 'abc' }))
   })
 
   it('shows "1 EVENT" (singular) when there is exactly one event', () => {
-    render(<MemoryRouter><WeekListPaginated events={[ev('a', 9, 'Solo')]} /></MemoryRouter>)
+    render(<MemoryRouter><WeekListPaginated events={[ev('a', 9, 'Solo')] as any} onSelectEvent={() => {}} /></MemoryRouter>)
     expect(screen.getByText(/ALL THIS WEEK · 1 EVENT$/)).toBeInTheDocument()
   })
 })
