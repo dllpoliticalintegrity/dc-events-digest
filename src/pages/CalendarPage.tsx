@@ -8,6 +8,7 @@ import { WeekStrip } from '@/components/calendar/WeekStrip'
 import { DayHero } from '@/components/calendar/DayHero'
 import { Agenda } from '@/components/calendar/Agenda'
 import { WeekGrid } from '@/components/calendar/WeekGrid'
+import { WeekListPaginated } from '@/components/calendar/WeekListPaginated'
 import { ViewToggle } from '@/components/layout/ViewToggle'
 import { EmptyState } from '@/components/layout/EmptyState'
 import { useFilterState } from '@/hooks/useFilterState'
@@ -94,6 +95,10 @@ export function CalendarPage() {
             <Agenda day={selected} events={events} eventTags={eventTags} />
           )}
         </>
+      )}
+
+      {!error && !loading && (
+        <WeekListPaginated events={events} />
       )}
 
       {tags.length > 0 && (
