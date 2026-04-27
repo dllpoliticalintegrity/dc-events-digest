@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import type { EventRow } from '@/hooks/useEventsForWeek'
+import { formatTime } from '@/lib/dates'
 
 const TYPE_BORDER: Record<string, string> = {
   music: 'border-l-stamp',
@@ -8,15 +9,6 @@ const TYPE_BORDER: Record<string, string> = {
   outdoors: 'border-l-green-700',
   civic: 'border-l-blue-700',
   community: 'border-l-gray-500',
-}
-
-function formatTime(iso: string): string {
-  const local = new Date(iso)
-  const h = local.getHours()
-  const m = local.getMinutes()
-  const ampm = h >= 12 ? 'pm' : 'am'
-  const h12 = ((h + 11) % 12) + 1
-  return m === 0 ? `${h12}${ampm}` : `${h12}:${m.toString().padStart(2, '0')}${ampm}`
 }
 
 export function EventCard({ event, tags }: { event: EventRow; tags: string[] }) {
