@@ -8,5 +8,11 @@
   "assets": {
     "directory": "./dist",
     "not_found_handling": "single-page-application"
-  }
+  },
+  // Custom Domains: Cloudflare creates the DNS records and certificates on
+  // deploy. The zone must live in the same account the deploy token targets.
+  "routes": [
+    { "pattern": "dceventsdigest.com", "custom_domain": true },
+    { "pattern": "www.dceventsdigest.com", "custom_domain": true }
+  ]
 }
