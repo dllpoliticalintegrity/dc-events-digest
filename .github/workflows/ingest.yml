@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       source:
-        description: "Source key (clockout | washingtonian | 730dc | all)"
+        description: "Source key (clockout | washingtonian | 730dc | rhizome | sixthandi | unionmarket | imp | all)"
         required: true
         default: "all"
       dry_run:
@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        source: [clockout, washingtonian, 730dc]
+        source: [clockout, washingtonian, 730dc, rhizome, sixthandi, unionmarket, imp]
     env:
       SUPABASE_URL:               ${{ secrets.SUPABASE_URL }}
       SUPABASE_ANON_KEY:          ${{ secrets.SUPABASE_ANON_KEY }}
@@ -30,6 +30,17 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
       - run: pip install -e .
+      - name: Check required secrets
+        if: github.event_name != 'workflow_dispatch' || github.event.inputs.source == 'all' || github.event.inputs.source == matrix.source
+        run: |
+          missing=""
+          for v in SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY ANTHROPIC_API_KEY; do
+            if [ -z "${!v}" ]; then missing="$missing $v"; fi
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Missing repository secrets:$missing — set them under Settings → Secrets and variables → Actions (see README → Deploy)"
+            exit 1
+          fi
       - name: Skip if not in scope
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.source != 'all' && github.event.inputs.source != matrix.source
         run: echo "skipping ${{ matrix.source }}" && exit 0

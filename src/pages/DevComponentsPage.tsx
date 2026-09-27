@@ -1,6 +1,4 @@
-import { DayHero } from '@/components/calendar/DayHero'
-import { WeekStrip } from '@/components/calendar/WeekStrip'
-import { WeekNav } from '@/components/calendar/WeekNav'
+import { EventLine } from '@/components/calendar/EventLine'
 import { TypeTabs } from '@/components/filters/TypeTabs'
 import { TagChips } from '@/components/filters/TagChips'
 import { EventCard } from '@/components/calendar/EventCard'
@@ -21,12 +19,8 @@ export function DevComponentsPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
       <Header />
-      <h2 className="font-mono text-xs text-muted uppercase">— DayHero —</h2>
-      <DayHero day={new Date('2026-04-26T12:00:00Z')} />
-      <h2 className="font-mono text-xs text-muted uppercase mt-6">— WeekStrip —</h2>
-      <WeekStrip weekStart={new Date('2026-04-20T00:00:00Z')} selected={new Date('2026-04-25T00:00:00Z')} onSelect={() => {}} densities={{ '2026-04-25': [{ type:'music', count:2 }] }} />
-      <h2 className="font-mono text-xs text-muted uppercase mt-6">— WeekNav —</h2>
-      <WeekNav weekStart={new Date('2026-04-20T00:00:00Z')} onPrev={() => {}} onNext={() => {}} onToday={() => {}} />
+      <h2 className="font-mono text-xs text-muted uppercase">— EventLine —</h2>
+      <ul className="space-y-1"><EventLine event={sample as any} onClick={() => {}} /></ul>
       <h2 className="font-mono text-xs text-muted uppercase mt-6">— TypeTabs —</h2>
       <TypeTabs value={type} onChange={setType} />
       <h2 className="font-mono text-xs text-muted uppercase mt-6">— TagChips —</h2>

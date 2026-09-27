@@ -37,6 +37,8 @@ python -m scripts.data_import.clockout.run --dry-run --limit 5
 ### Adding a new source
 
 1. Create `scripts/data_import/<key>/run.py` with a `SourceBase` subclass (see existing sources).
+   If the source tracks a cursor, persist it in `on_success()` (called after a real run has staged
+   and promoted), not in `fetch()`, so failed runs retry and `--dry-run` stays read-only.
 2. Add an entry to `scripts/sources.yaml`.
 3. Add a fixture under `tests/fixtures/<key>/` and a parser/extractor test.
 4. Set `enabled: true` in `sources.yaml` once tests pass.
@@ -47,6 +49,10 @@ The GitHub Actions ingest workflow's matrix already includes the new source if y
 
 - **Frontend**: Vercel project connected to this repo's `main` branch. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in Vercel env vars.
 - **Ingestion**: GitHub Actions runs `.github/workflows/ingest.yml` daily. Required repo secrets: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `ANTHROPIC_API_KEY`.
+  The workflow fails fast with a `Missing repository secrets` error if any are unset. Apply the
+  migrations in `supabase/migrations/` to the target project before the first run. If GitHub has
+  disabled the schedule (Actions → ingest → "Enable workflow"), re-enable it, then run it manually
+  with `workflow_dispatch` (`source=730dc`, `dry_run=true`) to check the pipeline before the next cron.
 
 ## License
 

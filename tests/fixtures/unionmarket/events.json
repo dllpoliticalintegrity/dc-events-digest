@@ -1,0 +1,252 @@
+{
+ "events": [
+  {
+   "id": 10012842,
+   "global_id": "unionmarketdc.com?id=10012842",
+   "global_id_lineage": [
+    "unionmarketdc.com?id=10012842"
+   ],
+   "author": "9",
+   "status": "publish",
+   "date": "2026-03-25 14:28:16",
+   "date_utc": "2026-03-25 18:28:16",
+   "modified": "2026-03-26 09:37:27",
+   "modified_utc": "2026-03-26 13:37:27",
+   "url": "https://unionmarketdc.com/event/freshfarm-farmers-market/2026-09-27/",
+   "rest_url": "https://unionmarketdc.com/wp-json/tribe/events/v1/events/10012842",
+   "title": "FreshFarm Farmers Market",
+   "description": "<p>FRESHFARM is thrilled to partner with Union Market District to bring FRESHFARM to Union Market, which operates every Sunday through November. Located in the thriving Union Market District, this family-friendly market is the perfect spot to shop for locally grown fruits and vegetables, grass-fed meats and pastured eggs, dairy, baked goods, coffee, ice cream, prepared foods and more! If you want ",
+   "excerpt": "",
+   "slug": "freshfarm-farmers-market",
+   "image": false,
+   "all_day": false,
+   "start_date": "2026-09-27 10:00:00",
+   "start_date_details": {
+    "year": "2026",
+    "month": "09",
+    "day": "27",
+    "hour": "10",
+    "minutes": "00",
+    "seconds": "00"
+   },
+   "end_date": "2026-09-27 14:00:00",
+   "end_date_details": {
+    "year": "2026",
+    "month": "09",
+    "day": "27",
+    "hour": "14",
+    "minutes": "00",
+    "seconds": "00"
+   },
+   "utc_start_date": "2026-09-27 14:00:00",
+   "utc_start_date_details": {
+    "year": "2026",
+    "month": "09",
+    "day": "27",
+    "hour": "14",
+    "minutes": "00",
+    "seconds": "00"
+   },
+   "utc_end_date": "2026-09-27 18:00:00",
+   "utc_end_date_details": {
+    "year": "2026",
+    "month": "09",
+    "day": "27",
+    "hour": "18",
+    "minutes": "00",
+    "seconds": "00"
+   },
+   "timezone": "America/New_York",
+   "timezone_abbr": "EDT",
+   "cost": "",
+   "cost_details": {
+    "currency_symbol": "",
+    "currency_code": "",
+    "currency_position": "prefix",
+    "values": []
+   },
+   "website": "",
+   "show_map": true,
+   "show_map_link": true,
+   "hide_from_listings": false,
+   "sticky": true,
+   "featured": true,
+   "categories": [
+    {
+     "name": "The Market",
+     "slug": "the-market",
+     "term_group": 0,
+     "term_taxonomy_id": 36,
+     "taxonomy": "tribe_events_cat",
+     "description": "",
+     "parent": 0,
+     "count": 161,
+     "filter": "raw",
+     "id": 36
+    },
+    {
+     "name": "Union Market District",
+     "slug": "union-market-district",
+     "term_group": 0,
+     "term_taxonomy_id": 35,
+     "taxonomy": "tribe_events_cat",
+     "description": "",
+     "parent": 0,
+     "count": 1127,
+     "filter": "raw",
+     "id": 35
+    }
+   ],
+   "tags": [],
+   "venue": {
+    "id": 867,
+    "author": "2",
+    "status": "publish",
+    "date": "2023-03-09 13:34:19",
+    "date_utc": "2023-03-09 18:34:19",
+    "modified": "2023-11-28 19:56:52",
+    "modified_utc": "2023-11-29 00:56:52",
+    "url": "https://unionmarketdc.com/venue/union-market/",
+    "venue": "Union Market",
+    "slug": "union-market",
+    "address": "1309 5th St NE",
+    "city": "Washington",
+    "country": "United States",
+    "state": "DC",
+    "zip": "20002",
+    "stateprovince": "DC",
+    "show_map": true,
+    "show_map_link": true,
+    "global_id": "unionmarketdc.com?id=867",
+    "global_id_lineage": [
+     "unionmarketdc.com?id=867"
+    ]
+   },
+   "organizer": [],
+   "custom_fields": [],
+   "is_virtual": false,
+   "virtual_url": null,
+   "virtual_video_source": ""
+  },
+  {
+   "id": 10013208,
+   "global_id": "unionmarketdc.com?id=10013208",
+   "global_id_lineage": [
+    "unionmarketdc.com?id=10013208"
+   ],
+   "author": "9",
+   "status": "publish",
+   "date": "2026-09-10 11:56:17",
+   "date_utc": "2026-09-10 15:56:17",
+   "modified": "2026-09-10 11:56:18",
+   "modified_utc": "2026-09-10 15:56:18",
+   "url": "https://unionmarketdc.com/event/abff-pop-up-at-union-market/2026-09-27/",
+   "rest_url": "https://unionmarketdc.com/wp-json/tribe/events/v1/events/10013208",
+   "title": "ABFF Pop-Up at Union Market",
+   "description": "",
+   "excerpt": "",
+   "slug": "abff-pop-up-at-union-market",
+   "image": false,
+   "all_day": false,
+   "start_date": "2026-09-27 11:00:00",
+   "start_date_details": {
+    "year": "2026",
+    "month": "09",
+    "day": "27",
+    "hour": "11",
+    "minutes": "00",
+    "seconds": "00"
+   },
+   "end_date": "2026-09-27 22:00:00",
+   "end_date_details": {
+    "year": "2026",
+    "month": "09",
+    "day": "27",
+    "hour": "22",
+    "minutes": "00",
+    "seconds": "00"
+   },
+   "utc_start_date": "2026-09-27 15:00:00",
+   "utc_start_date_details": {
+    "year": "2026",
+    "month": "09",
+    "day": "27",
+    "hour": "15",
+    "minutes": "00",
+    "seconds": "00"
+   },
+   "utc_end_date": "2026-09-28 02:00:00",
+   "utc_end_date_details": {
+    "year": "2026",
+    "month": "09",
+    "day": "28",
+    "hour": "02",
+    "minutes": "00",
+    "seconds": "00"
+   },
+   "timezone": "America/New_York",
+   "timezone_abbr": "EDT",
+   "cost": "",
+   "cost_details": {
+    "currency_symbol": "$",
+    "currency_code": "USD",
+    "currency_position": "prefix",
+    "values": []
+   },
+   "website": "",
+   "show_map": true,
+   "show_map_link": true,
+   "hide_from_listings": false,
+   "sticky": true,
+   "featured": true,
+   "categories": [
+    {
+     "name": "Union Market District",
+     "slug": "union-market-district",
+     "term_group": 0,
+     "term_taxonomy_id": 35,
+     "taxonomy": "tribe_events_cat",
+     "description": "",
+     "parent": 0,
+     "count": 1127,
+     "filter": "raw",
+     "id": 35
+    }
+   ],
+   "tags": [],
+   "venue": {
+    "id": 4391,
+    "author": "9",
+    "status": "publish",
+    "date": "2024-03-26 18:07:01",
+    "date_utc": "2024-03-26 22:07:01",
+    "modified": "2024-05-17 10:10:09",
+    "modified_utc": "2024-05-17 14:10:09",
+    "url": "https://unionmarketdc.com/venue/angelika-film-pop-up/",
+    "venue": "Angelika Film Pop Up",
+    "slug": "angelika-film-pop-up",
+    "address": "550 Penn St NE",
+    "city": "Washington",
+    "country": "United States",
+    "state": "DC",
+    "zip": "20002",
+    "stateprovince": "DC",
+    "show_map": true,
+    "show_map_link": true,
+    "global_id": "unionmarketdc.com?id=4391",
+    "global_id_lineage": [
+     "unionmarketdc.com?id=4391"
+    ]
+   },
+   "organizer": [],
+   "custom_fields": [],
+   "is_virtual": false,
+   "virtual_url": null,
+   "virtual_video_source": ""
+  }
+ ],
+ "rest_url": "https://unionmarketdc.com/wp-json/tribe/events/v1/events/?page=1&per_page=2&start_date=2026-09-27 00:00:00&end_date=2028-09-27 23:59:59&status=publish",
+ "next_rest_url": "https://unionmarketdc.com/wp-json/tribe/events/v1/events/?per_page=2&start_date=2026-09-27+00%3A00%3A00&end_date=2028-09-27+23%3A59%3A59&status=publish&page=2",
+ "total": 66,
+ "total_pages": 33
+}
