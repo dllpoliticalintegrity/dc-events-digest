@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "dc-events-digest",
+  "compatibility_date": "2026-09-27",
+  // Static SPA: no Worker script, just the Vite build output. Unmatched paths
+  // (e.g. /week/2026-09-28, /event/<id>) fall back to index.html so React
+  // Router can handle them.
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}
