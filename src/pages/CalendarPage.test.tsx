@@ -49,3 +49,22 @@ describe('CalendarPage (one week per page)', () => {
     expect(screen.getByTestId('loc')).toHaveTextContent('/week/2026-04-20')
   })
 })
+
+
+describe('CalendarPage date picker and filters', () => {
+  it('picking a date in the popup jumps to that date\'s week', () => {
+    renderAt('/week/2026-04-20')
+    fireEvent.click(screen.getAllByLabelText('jump to date')[0])
+    fireEvent.click(screen.getByLabelText('next month'))         // April → May
+    fireEvent.click(screen.getByTestId('pick-2026-05-14'))     // a Thursday → its Monday
+    expect(screen.getByTestId('loc')).toHaveTextContent('/week/2026-05-11')
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('no longer shows the tag chip row', () => {
+    renderAt('/')
+    expect(screen.queryByText('happy-hour')).not.toBeInTheDocument()
+    expect(screen.queryByText('ticketed')).not.toBeInTheDocument()
+    expect(screen.getByText('Music')).toBeInTheDocument()       // type tabs remain
+  })
+})
