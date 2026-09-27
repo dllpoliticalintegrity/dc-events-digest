@@ -119,3 +119,16 @@ def test_real_llm_extracts_events_from_fixture():
         assert ex["payload"]["title"]
         assert ex["payload"]["start_at"].startswith("2026-")
         assert ex["payload"]["type"] in ("music", "food", "arts", "outdoors", "civic", "community")
+
+
+def test_cursor_is_not_advanced_when_extraction_yields_nothing():
+    html = Path("tests/fixtures/dc730/sample-pub.html").read_text()
+    with patch("scripts.data_import.dc730.run.requests.get", return_value=_fake_response(html)), \
+         patch("scripts.data_import.dc730.run._last_cursor", return_value="stale"), \
+         patch("scripts.data_import.dc730.run._save_cursor") as save, \
+         patch("scripts.shared.extraction._call_model", return_value=_fake_msg([])), \
+         patch("scripts.shared.source.upsert_staging_batch", return_value=0), \
+         patch("scripts.shared.source.call_promote_pending", return_value=[]):
+        metrics = DC730Source().run(dry_run=False)
+    assert metrics["staged"] == 0
+    save.assert_not_called()   # a zero-event extraction must not mark the doc as processed

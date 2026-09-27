@@ -76,6 +76,7 @@ class DC730Source(SourceBase):
 
     def __init__(self) -> None:
         self._pending_cursor: str | None = None
+        self._extracted = 0
 
     def fetch(self) -> list[RawCandidate]:
         resp = requests.get(DOC_URL, headers={"User-Agent": USER_AGENT}, timeout=20)
@@ -105,9 +106,17 @@ class DC730Source(SourceBase):
             eid = _hash_external_id(ev["title"], ev["start_at"])
             payload = {**ev, "url": DOC_URL}
             out.append({"external_id": eid, "payload": payload})
+        self._extracted += len(out)
         return out
 
     def on_success(self) -> None:
+        # The scheduler always lists dozens of events, so extracting none means the
+        # LLM step failed (truncated or malformed output). Leave the cursor alone in
+        # that case so the next run retries the same doc instead of skipping it.
+        if self._pending_cursor and self._extracted == 0:
+            log.warning("730dc: no events extracted from a changed doc — cursor not advanced, will retry next run")
+            self._pending_cursor = None
+            return
         if self._pending_cursor:
             _save_cursor(self._pending_cursor)
             self._pending_cursor = None
