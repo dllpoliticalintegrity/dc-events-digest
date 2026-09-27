@@ -43,6 +43,13 @@ class SourceBase:
     def extract(self, raw: RawCandidate) -> list[ExtractedEvent]:
         raise NotImplementedError
 
+    def on_success(self) -> None:
+        """Hook called after a real (non-dry) run has staged and promoted its events.
+
+        Sources that track a cursor should persist it here rather than in fetch(),
+        so a failed extraction does not advance the cursor and --dry-run stays read-only.
+        """
+
     def run(self, dry_run: bool = False, limit: int | None = None) -> dict[str, Any]:
         if not self.source_key:
             raise RuntimeError("Subclass must set source_key")
@@ -80,6 +87,8 @@ class SourceBase:
         for r in rows:
             for k, v in (r.get("reasons") or {}).items():
                 reasons[k] = reasons.get(k, 0) + int(v)
+
+        self.on_success()
 
         log.info(
             "source=%s fetched=%d staged=%d approved=%d rejected=%d reasons=%s",

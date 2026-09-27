@@ -167,8 +167,9 @@ Adding a 7th type or 9th tag = one edit + regenerate types + redeploy.
 ### 8.3 730DC newsletter extractor
 
 - Newsletter is published as a public Google Doc with "Publish to web" enabled. Fetch the **published** version (`/pub`), which returns plain HTML — avoids auth.
-- Same extractor pattern as Washingtonian, with prompt tweak: "This is a daily newsletter — focus on the events section. Skip news commentary."
-- `external_id` = SHA1 of `(doc_publication_date + extracted_title + start_at_iso)`.
+- The doc is 730DC's *Weekly Scheduler*, re-published in place (day headings like "Wednesday, September 23" with no year, plus M/D long-tail dates). The prompt tweak passes the fetch date so the model can resolve year-less dates, and flags time-less "Also ||" items as all-day.
+- Cursor = SHA1 of the doc's readable text (the doc has no publication date); saved in `on_success()` only after a real run stages and promotes.
+- `external_id` = SHA1 of `(extracted_title + start_at_iso)` — independent of the fetch date, so re-fetching an unchanged doc updates rows instead of duplicating them.
 
 ### 8.4 Garbage filter (`promote_pending_events()` SQL function)
 

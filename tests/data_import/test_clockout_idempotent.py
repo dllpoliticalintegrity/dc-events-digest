@@ -1,8 +1,14 @@
+import os
 import pytest
 from scripts.data_import.clockout.run import ClockoutSource
 from scripts.shared.supabase import get_supabase_client
 from pathlib import Path
 from unittest.mock import patch
+
+pytestmark = pytest.mark.skipif(
+    not os.environ.get("SUPABASE_URL"),
+    reason="needs a real Supabase project (SUPABASE_URL unset)",
+)
 
 
 @pytest.fixture(autouse=True)
