@@ -1,10 +1,15 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { Database } from '@/lib/supabase-types'
-import { isoDateString } from '@/lib/dates'
+import { addDays, localMidnightIso } from '@/lib/dates'
 
 export type EventRow = Database['public']['Tables']['events']['Row']
 
+/**
+ * Events whose start falls inside the local-time week beginning at `monday`
+ * (a UTC-midnight day stamp). The range is converted to local midnight so
+ * late-evening events land on the day they happen for the viewer.
+ */
 export function useEventsForWeek(monday: Date, type: string, tags: string[]) {
   const [events, setEvents] = useState<EventRow[]>([])
   const [loading, setLoading] = useState(true)
@@ -14,10 +19,8 @@ export function useEventsForWeek(monday: Date, type: string, tags: string[]) {
     let cancelled = false
     setLoading(true)
     setError(null)
-    const start = isoDateString(monday)
-    const sundayPlusOne = new Date(monday)
-    sundayPlusOne.setUTCDate(monday.getUTCDate() + 7)
-    const end = isoDateString(sundayPlusOne)
+    const start = localMidnightIso(monday)
+    const end = localMidnightIso(addDays(monday, 7))
 
     let q = supabase.from('events').select('*')
       .gte('start_at', start)
@@ -29,7 +32,7 @@ export function useEventsForWeek(monday: Date, type: string, tags: string[]) {
     q.then(({ data, error }) => {
       if (cancelled) return
       if (error) { setError(error.message); setLoading(false); return }
-      let rows = (data ?? []) as EventRow[]
+      const rows = (data ?? []) as EventRow[]
       if (tags.length > 0) {
         // Tag filter: client-side join. (For v1 traffic, fine; revisit if event count grows.)
         // Server-side join requires a view; deferred until needed.

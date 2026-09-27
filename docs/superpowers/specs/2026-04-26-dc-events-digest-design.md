@@ -282,45 +282,57 @@ These additions would require beyond-trivial work (call out at the time):
 
 | Route | Purpose |
 |---|---|
-| `/` | Calendar — defaults to current week, today selected |
-| `/week/:isoDate` | Explicit week start (e.g. `/week/2026-04-26`) |
+| `/` | Calendar feed — anchored on the current week, today highlighted |
+| `/week/:isoDate` | Feed anchored on that week (e.g. `/week/2026-04-20`) |
 | `/event/:id` | Event detail page (deep-linkable, shareable) |
 | `/about` | What this is + source attribution from `sources.yaml` |
 
 Filter state serializes to query params (`?type=music&tags=free,outdoor`) — shareable, browser back/forward works.
 
-### 10.2 Layout
+### 10.2 Layout (revised: vertical week feed)
+
+The calendar is a single vertical feed paginated by week. Each week is one
+"page": a sticky week header, then its seven days top to bottom with events as
+compact rows. Scrolling to the bottom appends the next week (IntersectionObserver
+with a "next week" button fallback); "earlier week" prepends one above without
+moving the viewport. Up to 26 weeks in either direction.
 
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  DC Events Digest                          [About]      │
 ├─────────────────────────────────────────────────────────┤
-│  [All] [Music] [Food] [Arts] [Outdoors] [Civic] [Comm.] │  ← type tabs (single-pick)
+│  [All] [Music] [Food] [Arts] [Outdoors] [Civic] [Comm.]  Today │
 │  free · ticketed · outdoor · 21+ · family · weekend     │  ← tag chips (multi-pick)
 ├─────────────────────────────────────────────────────────┤
-│  ◂  Apr 21 — Apr 27, 2026  ▸                            │
-│  ┌──┬──┬──┬──┬──┬──┬──┐                                 │
-│  │M │T │W │T │F │S●│S │  ← week strip (mini-pages)      │
-│  │21│22│23│24│25│26│27│    selected day = red border    │
-│  └──┴──┴──┴──┴──┴──┴──┘                                 │
-├─────────────────────────────────────────────────────────┤
-│  — APR 26 · 3 EVENTS —                                  │  ← typographic divider
-│  ┃ Jazz in the Garden                                    │
-│  ┃ 5pm · Sculpture Garden · free · outdoor               │
-│  ┃ Eastern Market                                        │
-│  ┃ 9am · Capitol Hill                                    │
-│  ┃ ANC 1A Public Meeting                                 │
-│  ┃ 10am · Columbia Heights · civic                       │
+│                    ▴ earlier week                       │
+│  Apr 20 — Apr 26, 2026   [THIS WEEK]          12 EVENTS │  ← sticky week header
+│  — MON · APR 20 · 2                                     │
+│  ┃ 7pm   Jazz in the Garden         music · Clockout DC │
+│  ┃ 9am   Eastern Market             food  · 730DC       │
+│  — TUE · APR 21                                         │
+│    — nothing listed                                     │
+│  — WED · APR 22 · TODAY · 3                             │  ← today highlighted
+│  ┃ …                                                    │
+│  …                                                      │
+│  Apr 27 — May 3, 2026                          8 EVENTS │  ← next week (auto-appended)
+│  …                                                      │
+│                     ▾ next week                         │
 └─────────────────────────────────────────────────────────┘
 ```
 
-Mobile (≤768px): week strip stays (compact); tag chips horizontal-scroll; agenda full-width.
+Days are grouped by the viewer's local calendar date (a 10pm ET show stays on
+its evening), and the per-week query spans local midnight to local midnight.
+Clicking a row opens the event detail modal; `/event/:id` remains deep-linkable.
 
-**Default state:** all types, no tags, current week, today selected.
+Mobile (≤768px): rows are full-width; type and source labels collapse; sticky
+headers keep the current week visible while scrolling.
+
+**Default state:** all types, no tags, feed anchored on the current week with
+the following week preloaded. `/week/:isoDate` anchors the feed on that week.
 
 **Empty states:**
-- Filter mismatch: "No events match your filters this week. [Clear filters]"
-- No data yet: big "NO EVENTS" rubber stamp + "check back tomorrow"
+- Filter mismatch: "No events match your filters this week. [Clear filters]" under that week
+- Empty day: "— nothing listed"
 
 ### 10.3 Component file structure
 
