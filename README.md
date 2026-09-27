@@ -51,8 +51,9 @@ The GitHub Actions ingest workflow's matrix already includes the new source if y
   `.github/workflows/deploy.yml` builds and deploys on every push to `main`. Required repo secrets:
   `CLOUDFLARE_API_TOKEN` (Account API token with the *Edit Cloudflare Workers* template),
   `CLOUDFLARE_ACCOUNT_ID`, plus `SUPABASE_URL` and `SUPABASE_ANON_KEY` (inlined into the bundle as `VITE_*`).
-  The first deploy publishes at `https://dc-events-digest.<account-subdomain>.workers.dev`; add a custom domain
-  under the Worker's Settings → Domains & Routes. To deploy by hand: `wrangler login` then `bun run deploy`.
+  Deploys serve `https://dceventsdigest.com` and `www.` (custom domains in `wrangler.jsonc`; the zone must be in the
+  same Cloudflare account as the deploy token) plus the account's `workers.dev` URL. To deploy by hand: `wrangler login`
+  then `bun run deploy`.
 - **Ingestion**: GitHub Actions runs `.github/workflows/ingest.yml` daily. Required repo secrets: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `ANTHROPIC_API_KEY`.
   The workflow fails fast with a `Missing repository secrets` error if any are unset. Apply the
   migrations in `supabase/migrations/` to the target project before the first run. If GitHub has
