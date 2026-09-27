@@ -30,6 +30,10 @@ Broad DC life: civic events (ANC meetings, hearings, town halls), community even
 | `clockout` | Clockout DC | `https://www.clockoutdc.com/events` | HTML scraper (BeautifulSoup; Playwright fallback) |
 | `washingtonian` | Washingtonian — Things to Do | `https://washingtonian.com/sections/things-to-do/` | RSS → article fetch → LLM extractor |
 | `730dc` | 730DC | Published Google Doc URL | HTML fetch of `/pub` view → LLM extractor |
+| `rhizome` | Rhizome DC | `https://www.rhizomedc.org/new-events?format=json` | Squarespace collection JSON (no LLM) |
+| `sixthandi` | Sixth & I | `https://www.sixthandi.org/wp-json/tribe/events/v1/events` | The Events Calendar REST API (no LLM) |
+| `unionmarket` | Union Market | `https://unionmarketdc.com/wp-json/tribe/events/v1/events` | The Events Calendar REST API (no LLM) |
+| `imp` | I.M.P. venues (9:30 Club, The Anthem, Lincoln Theatre, The Atlantis) | venue home pages | HTML card scraper; date from Ticketmaster URL (no LLM) |
 
 **MigenteDMV is intentionally deferred** (returned 403 to direct fetch — needs alternative approach not worth blocking v1 on).
 

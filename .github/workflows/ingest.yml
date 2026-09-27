@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       source:
-        description: "Source key (clockout | washingtonian | 730dc | all)"
+        description: "Source key (clockout | washingtonian | 730dc | rhizome | sixthandi | unionmarket | imp | all)"
         required: true
         default: "all"
       dry_run:
@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        source: [clockout, washingtonian, 730dc]
+        source: [clockout, washingtonian, 730dc, rhizome, sixthandi, unionmarket, imp]
     env:
       SUPABASE_URL:               ${{ secrets.SUPABASE_URL }}
       SUPABASE_ANON_KEY:          ${{ secrets.SUPABASE_ANON_KEY }}

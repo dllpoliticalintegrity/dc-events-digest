@@ -18,3 +18,31 @@
   schedule: "0 7 * * *"
   module: "scripts.data_import.dc730.run:DC730Source"
   enabled: true
+
+- key: rhizome
+  name: "Rhizome DC"
+  url: "https://www.rhizomedc.org/new-events"
+  schedule: "45 7 * * *"
+  module: "scripts.data_import.rhizome.run:RhizomeSource"
+  enabled: true
+
+- key: sixthandi
+  name: "Sixth & I"
+  url: "https://www.sixthandi.org/events/"
+  schedule: "15 7 * * *"
+  module: "scripts.data_import.sixthandi.run:SixthAndISource"
+  enabled: true
+
+- key: unionmarket
+  name: "Union Market"
+  url: "https://unionmarketdc.com/events/"
+  schedule: "30 7 * * *"
+  module: "scripts.data_import.unionmarket.run:UnionMarketSource"
+  enabled: true
+
+- key: imp
+  name: "I.M.P. venues (9:30 Club, The Anthem, Lincoln Theatre, The Atlantis)"
+  url: "https://www.930.com/"
+  schedule: "0 8 * * *"
+  module: "scripts.data_import.imp.run:IMPSource"
+  enabled: true
