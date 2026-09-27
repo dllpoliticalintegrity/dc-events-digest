@@ -56,7 +56,7 @@ Washingtonian ─ LLM    ─→ python extractors/       ──────→  
 Two halves separated by Supabase:
 
 - **Ingestion half**: Python jobs run on GitHub Actions daily, write raw candidates to a `staging_events` table, then call a Postgres function that promotes survivors into `public.events`.
-- **Frontend half**: Vite + React + TypeScript + Tailwind + shadcn/ui SPA. Reads `public.events` directly via supabase-js with the `anon` key. Hosted on Vercel.
+- **Frontend half**: Vite + React + TypeScript + Tailwind + shadcn/ui SPA. Reads `public.events` directly via supabase-js with the `anon` key. Hosted on Cloudflare Workers.
 
 ## 6. Data model
 
@@ -412,9 +412,9 @@ Every ingestion script supports `--dry-run` (logs what it *would* upsert; touche
 
 ### 12.1 Frontend hosting
 
-- **Vercel.** Connect GitHub repo. Auto-deploy `main`. Preview deploys on PRs. Free tier covers v1.
+- **Cloudflare Workers** (static assets, `wrangler.jsonc`). `.github/workflows/deploy.yml` builds with Bun and runs `wrangler deploy` on every push to `main`. Free tier covers v1.
 - Build: `bun run build`. Output: `dist/`.
-- Env vars in Vercel: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (both safe to ship; RLS protects everything).
+- Build-time env: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` come from the `SUPABASE_URL` / `SUPABASE_ANON_KEY` repo secrets in the deploy workflow (both safe to ship; RLS protects everything). Deploy auth: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` repo secrets.
 
 ### 12.2 Backend (data + ingestion)
 
@@ -426,16 +426,16 @@ Every ingestion script supports `--dry-run` (logs what it *would* upsert; touche
 
 | Secret | Lives in | Used by |
 |---|---|---|
-| `SUPABASE_URL` | GH Actions secrets + Vercel env (`VITE_SUPABASE_URL`) | Both |
-| `SUPABASE_ANON_KEY` | GH Actions secrets + Vercel env (`VITE_SUPABASE_ANON_KEY`) | Both |
-| `SUPABASE_SERVICE_ROLE_KEY` | GH Actions secrets only | Ingestion jobs only — **never** in Vercel, never in frontend bundle |
+| `SUPABASE_URL` | GH Actions secrets (also inlined at build as `VITE_SUPABASE_URL`) | Both |
+| `SUPABASE_ANON_KEY` | GH Actions secrets (also inlined at build as `VITE_SUPABASE_ANON_KEY`) | Both |
+| `SUPABASE_SERVICE_ROLE_KEY` | GH Actions secrets only | Ingestion jobs only — **never** in Cloudflare Workers, never in frontend bundle |
 | `ANTHROPIC_API_KEY` | GH Actions secrets only | Washingtonian + 730DC LLM jobs only |
 
 `.env.example` checked in. Real `.env` is gitignored. The `block-env.sh` PreToolUse hook prevents accidental edits.
 
 ### 12.4 Observability (lightweight v1)
 
-- **Frontend**: Vercel Analytics (free tier). No Sentry until there's a real issue rate to track.
+- **Frontend**: Cloudflare Workers Analytics (free tier). No Sentry until there's a real issue rate to track.
 - **Ingestion**: GH Actions logs are the audit trail. Each `run.py` emits a one-line summary at end: `source=clockout fetched=42 staged=12 approved=10 rejected=2 reasons={past_date:1, duplicate:1}`. Failed runs trigger Actions email.
 - **Supabase**: built-in logs panel. The `staging_events` table itself is the audit trail for the garbage filter — query any time for "what got rejected last week and why."
 
@@ -443,7 +443,7 @@ Every ingestion script supports `--dry-run` (logs what it *would* upsert; touche
 
 | Service | Cost |
 |---|---|
-| Vercel (hobby) | $0 |
+| Cloudflare Workers (hobby) | $0 |
 | Supabase (free) | $0 |
 | GitHub Actions | $0 (public repo or ~150 free min/mo if private; ~5 min/day cron) |
 | Anthropic (Sonnet 4.6) | ~$3-8 (~30 articles/day × ~2K input tokens) |
@@ -452,7 +452,7 @@ Every ingestion script supports `--dry-run` (logs what it *would* upsert; touche
 ### 12.6 Domain
 
 - v1: `dc-events-digest.vercel.app`.
-- Future: bring a real domain — Vercel handles DNS + cert automatically. Spec doesn't block on this.
+- Future: bring a real domain — Cloudflare Workers handles DNS + cert automatically. Spec doesn't block on this.
 
 ## 13. Repo layout
 

@@ -26,6 +26,10 @@ __pycache__/
 .venv/
 venv/
 
+# cloudflare
+.wrangler/
+.dev.vars*
+
 # node / bun
 node_modules/
 .bun/
