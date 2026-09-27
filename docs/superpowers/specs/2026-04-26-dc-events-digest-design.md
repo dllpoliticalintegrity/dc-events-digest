@@ -282,56 +282,54 @@ These additions would require beyond-trivial work (call out at the time):
 
 | Route | Purpose |
 |---|---|
-| `/` | Calendar feed — anchored on the current week, today highlighted |
-| `/week/:isoDate` | Feed anchored on that week (e.g. `/week/2026-04-20`) |
+| `/` | Calendar — the current week, today highlighted |
+| `/week/:isoDate` | That week (e.g. `/week/2026-04-20`); prev/next update this |
 | `/event/:id` | Event detail page (deep-linkable, shareable) |
 | `/about` | What this is + source attribution from `sources.yaml` |
 
 Filter state serializes to query params (`?type=music&tags=free,outdoor`) — shareable, browser back/forward works.
 
-### 10.2 Layout (revised: vertical week feed)
+### 10.2 Layout (revised: one week per page)
 
-The calendar is a single vertical feed paginated by week. Each week is one
-"page": a sticky week header, then its seven days top to bottom with events as
-compact rows. Scrolling to the bottom appends the next week (IntersectionObserver
-with a "next week" button fallback); "earlier week" prepends one above without
-moving the viewport. Up to 26 weeks in either direction.
+The calendar shows one week at a time. The week in view is the URL
+(`/week/:isoDate`; `/` is the current week), so previous / next controls
+update the address bar and any week is linkable. Within the week, the seven
+days stack vertically under a sticky week header, each day with its events as
+compact rows. Left / right arrow keys page through weeks.
 
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  DC Events Digest                          [About]      │
 ├─────────────────────────────────────────────────────────┤
-│  [All] [Music] [Food] [Arts] [Outdoors] [Civic] [Comm.]  Today │
+│  [All] [Music] [Food] [Arts] [Outdoors] [Civic] [Comm.] │
 │  free · ticketed · outdoor · 21+ · family · weekend     │  ← tag chips (multi-pick)
 ├─────────────────────────────────────────────────────────┤
-│                    ▴ earlier week                       │
-│  Apr 20 — Apr 26, 2026   [THIS WEEK]          12 EVENTS │  ← sticky week header
-│  — MON · APR 20 · 2                                     │
+│  [◂ prev week]   SEP 28 — OCT 4, 2026   Today  [next week ▸] │
+│  Sep 28 — Oct 4, 2026   [THIS WEEK]          138 EVENTS │  ← sticky week header
+│  — MON · SEP 28 · TODAY · 22                            │  ← today highlighted
 │  ┃ 7pm   Jazz in the Garden         music · Clockout DC │
 │  ┃ 9am   Eastern Market             food  · 730DC       │
-│  — TUE · APR 21                                         │
-│    — nothing listed                                     │
-│  — WED · APR 22 · TODAY · 3                             │  ← today highlighted
+│  — TUE · SEP 29 · 18                                    │
 │  ┃ …                                                    │
 │  …                                                      │
-│  Apr 27 — May 3, 2026                          8 EVENTS │  ← next week (auto-appended)
-│  …                                                      │
-│                     ▾ next week                         │
+│  — SUN · OCT 4                                          │
+│    — nothing listed                                     │
+│  [◂ prev week]                              [next week ▸] │
 └─────────────────────────────────────────────────────────┘
 ```
 
 Days are grouped by the viewer's local calendar date (a 10pm ET show stays on
 its evening), and the per-week query spans local midnight to local midnight.
 Clicking a row opens the event detail modal; `/event/:id` remains deep-linkable.
+Filters live in the query string and survive week navigation.
 
-Mobile (≤768px): rows are full-width; type and source labels collapse; sticky
-headers keep the current week visible while scrolling.
+Mobile (≤768px): rows are full-width; type and source labels collapse; the
+sticky header keeps the week visible while scrolling its days.
 
-**Default state:** all types, no tags, feed anchored on the current week with
-the following week preloaded. `/week/:isoDate` anchors the feed on that week.
+**Default state:** all types, no tags, current week, today highlighted.
 
 **Empty states:**
-- Filter mismatch: "No events match your filters this week. [Clear filters]" under that week
+- Filter mismatch: "No events match your filters this week. [Clear filters]"
 - Empty day: "— nothing listed"
 
 ### 10.3 Component file structure
