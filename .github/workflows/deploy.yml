@@ -21,14 +21,18 @@ jobs:
       - name: Check required secrets
         run: |
           missing=""
-          for v in VITE_SUPABASE_URL VITE_SUPABASE_ANON_KEY; do
-            if [ -z "${!v}" ]; then missing="$missing ${v#VITE_}"; fi
-          done
           if [ -z "${{ secrets.CLOUDFLARE_API_TOKEN }}" ]; then missing="$missing CLOUDFLARE_API_TOKEN"; fi
           if [ -z "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}" ]; then missing="$missing CLOUDFLARE_ACCOUNT_ID"; fi
           if [ -n "$missing" ]; then
             echo "::error::Missing repository secrets:$missing — see README → Deploy"
             exit 1
+          fi
+          # Supabase values are inlined into the bundle; without them the site still
+          # deploys but every week shows a load error until they are set.
+          if [ -z "$VITE_SUPABASE_URL" ] || [ -z "$VITE_SUPABASE_ANON_KEY" ]; then
+            echo "::warning::SUPABASE_URL / SUPABASE_ANON_KEY secrets not set — building with placeholders; the calendar will not load events until they are added and main is redeployed"
+            echo "VITE_SUPABASE_URL=https://placeholder.supabase.co" >> "$GITHUB_ENV"
+            echo "VITE_SUPABASE_ANON_KEY=placeholder" >> "$GITHUB_ENV"
           fi
       - uses: oven-sh/setup-bun@v1
       - run: bun install --frozen-lockfile
