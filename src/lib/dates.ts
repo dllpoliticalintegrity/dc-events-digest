@@ -75,3 +75,14 @@ export function formatDayLong(d: Date): string {
 export function isoDateString(d: Date): string {
   return d.toISOString().slice(0, 10)
 }
+
+/** Rows of 7 UTC day stamps covering a month, Monday-first, padded to full weeks. */
+export function monthGrid(year: number, month: number): Date[][] {
+  const first = startOfIsoWeek(dayStamp(year, month, 1))
+  const lastOfMonth = dayStamp(year, month + 1, 0)
+  const rows: Date[][] = []
+  for (let d = first; d <= lastOfMonth; d = addDays(d, 7)) {
+    rows.push(Array.from({ length: 7 }, (_, i) => addDays(d, i)))
+  }
+  return rows
+}

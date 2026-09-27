@@ -2,7 +2,6 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import { Header } from '@/components/layout/Header'
 import { TypeTabs } from '@/components/filters/TypeTabs'
-import { TagChips } from '@/components/filters/TagChips'
 import { WeekPager } from '@/components/calendar/WeekPager'
 import { WeekSection } from '@/components/calendar/WeekSection'
 import { EventDetailModal } from '@/components/calendar/EventDetailModal'
@@ -30,7 +29,7 @@ export function CalendarPage() {
   const thisWeek = isoDateString(startOfIsoWeek(todayStamp()))
   const isCurrentWeek = isoDateString(weekStart) === thisWeek
 
-  const { type, tags, setType, toggleTag, clear } = useFilterState()
+  const { type, tags, setType, clear } = useFilterState()
   const hasFilters = type !== 'all' || tags.length > 0
   const [openEvent, setOpenEvent] = useState<EventRow | null>(null)
 
@@ -42,6 +41,7 @@ export function CalendarPage() {
   const goPrev = useCallback(() => goToWeek(addDays(weekStart, -7)), [goToWeek, weekStart])
   const goNext = useCallback(() => goToWeek(addDays(weekStart, 7)), [goToWeek, weekStart])
   const goToday = useCallback(() => goToWeek(startOfIsoWeek(todayStamp())), [goToWeek])
+  const goToDate = useCallback((day: Date) => goToWeek(startOfIsoWeek(day)), [goToWeek])
 
   // ← / → page through weeks unless the user is typing or the modal is open.
   useEffect(() => {
@@ -56,15 +56,12 @@ export function CalendarPage() {
     return () => window.removeEventListener('keydown', onKey)
   }, [goPrev, goNext, openEvent])
 
-  const pagerProps = { weekStart, isCurrentWeek, onPrev: goPrev, onNext: goNext, onToday: goToday }
+  const pagerProps = { weekStart, isCurrentWeek, onPrev: goPrev, onNext: goNext, onToday: goToday, onPickDate: goToDate }
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
       <Header />
       <TypeTabs value={type} onChange={setType} />
-      <div className="mt-2">
-        <TagChips selected={tags} onToggle={toggleTag} />
-      </div>
       {hasFilters && (
         <button onClick={clear} className="font-mono text-xs underline mt-2 text-muted hover:text-ink">Clear all filters</button>
       )}
