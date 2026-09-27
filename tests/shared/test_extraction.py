@@ -19,7 +19,7 @@ def test_extract_events_parses_structured_response():
     fake_client = MagicMock()
     fake_client.messages.create.return_value = fake_message
 
-    with patch("scripts.shared.extraction._client", fake_client):
+    with patch("scripts.shared.extraction._call_model", return_value=fake_message):
         events = extract_events(article_text="(article body)", source_url="https://x.test/1")
 
     assert len(events) == 1
@@ -36,7 +36,7 @@ def test_extract_events_returns_empty_when_no_events_in_article():
     fake_client = MagicMock()
     fake_client.messages.create.return_value = fake_message
 
-    with patch("scripts.shared.extraction._client", fake_client):
+    with patch("scripts.shared.extraction._call_model", return_value=fake_message):
         events = extract_events(article_text="commentary", source_url="https://x.test/2")
 
     assert events == []
@@ -50,7 +50,7 @@ def test_extract_events_drops_invalid_type():
     fake_client = MagicMock()
     fake_client.messages.create.return_value = fake_message
 
-    with patch("scripts.shared.extraction._client", fake_client):
+    with patch("scripts.shared.extraction._call_model", return_value=fake_message):
         events = extract_events(article_text="(body)", source_url="u")
 
     assert events == []  # invalid type → dropped

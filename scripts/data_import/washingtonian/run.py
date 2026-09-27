@@ -1,8 +1,11 @@
 from __future__ import annotations
+import calendar
 import hashlib
 import logging
+from datetime import datetime, timezone
 import feedparser
 import requests
+from dateutil import parser as dparser
 from bs4 import BeautifulSoup
 from scripts.shared.source import SourceBase, RawCandidate, ExtractedEvent, main_for
 from scripts.shared.extraction import extract_events
@@ -37,21 +40,46 @@ def _save_cursor(value: str) -> None:
         "source": "washingtonian",
         "last_cursor": value,
         "last_status": "ok",
-        "last_run_at": "now()",
+        "last_run_at": datetime.now(timezone.utc).isoformat(),
     }).execute()
+
+
+def _entry_published(entry) -> datetime | None:
+    """Entry publish time as an aware UTC datetime (feedparser's parsed tuple, else the raw string)."""
+    parsed = entry.get("published_parsed") or entry.get("updated_parsed")
+    if parsed:
+        return datetime.fromtimestamp(calendar.timegm(parsed), tz=timezone.utc)
+    raw = entry.get("published") or entry.get("updated")
+    return _parse_cursor(raw)
+
+
+def _parse_cursor(value: str | None) -> datetime | None:
+    """Cursor values are ISO 8601 now, but older rows hold the feed's RFC 822 string."""
+    if not value:
+        return None
+    try:
+        dt = dparser.parse(value)
+    except (ValueError, OverflowError):
+        return None
+    return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
 
 
 class WashingtonianSource(SourceBase):
     source_key = "washingtonian"
     schedule = "30 6 * * *"
 
+    def __init__(self) -> None:
+        self._pending_cursor: datetime | None = None
+
     def fetch(self) -> list[RawCandidate]:
         feed = feedparser.parse(FEED_URL)
-        cursor = _last_cursor()
+        cursor = _parse_cursor(_last_cursor())
         out: list[RawCandidate] = []
         latest_seen = cursor
         for entry in feed.entries:
-            published = entry.get("published") or entry.get("updated")
+            published = _entry_published(entry)
+            # Dates are compared as datetimes: comparing the feed's "Sat, 26 Sep …"
+            # strings lexically skipped every article for months.
             if cursor and published and published <= cursor:
                 continue
             try:
@@ -61,11 +89,17 @@ class WashingtonianSource(SourceBase):
                 log.warning("skipping %s: %s", entry.link, e)
                 continue
             out.append({"article_url": entry.link, "html": resp.text})
-            if not latest_seen or (published and published > latest_seen):
+            if published and (not latest_seen or published > latest_seen):
                 latest_seen = published
         if latest_seen and latest_seen != cursor:
-            _save_cursor(latest_seen)
+            self._pending_cursor = latest_seen
+        log.info("washingtonian: %d new articles since %s", len(out), cursor.isoformat() if cursor else "start")
         return out
+
+    def on_success(self) -> None:
+        if self._pending_cursor:
+            _save_cursor(self._pending_cursor.isoformat())
+            self._pending_cursor = None
 
     def extract(self, raw: RawCandidate) -> list[ExtractedEvent]:
         url = raw["article_url"]

@@ -9,11 +9,11 @@ from scripts.data_import.dc730.run import (
 )
 
 
-def _fake_client(events):
+def _fake_msg(events):
     fake_msg = MagicMock()
     fake_msg.stop_reason = "end_turn"
     fake_msg.content = [MagicMock(type="text", text=json.dumps({"events": events}))]
-    return MagicMock(messages=MagicMock(create=MagicMock(return_value=fake_msg)))
+    return fake_msg
 
 
 ONE_EVENT = [{
@@ -28,9 +28,8 @@ ONE_EVENT = [{
 def test_extract_calls_llm_with_week_scheduler_prompt():
     html = Path("tests/fixtures/dc730/sample-pub.html").read_text()
     raw = {"fetched_on": "2026-04-25", "text": _readable_text(html)}
-    client = _fake_client(ONE_EVENT)
 
-    with patch("scripts.shared.extraction._client", client):
+    with patch("scripts.shared.extraction._call_model", return_value=_fake_msg(ONE_EVENT)) as call:
         out = DC730Source().extract(raw)
 
     assert len(out) == 1
@@ -38,7 +37,7 @@ def test_extract_calls_llm_with_week_scheduler_prompt():
     assert out[0]["payload"]["type"] == "civic"
     assert out[0]["external_id"] == _hash_external_id("ANC 1A Public Meeting", out[0]["payload"]["start_at"])
 
-    prompt = client.messages.create.call_args.kwargs["messages"][0]["content"]
+    prompt = call.call_args.args[0]
     assert "fetched on 2026-04-25" in prompt          # LLM gets a reference date for year-less headings
     assert "Wednesday, April 22" in prompt              # readable doc text made it into the prompt
     assert "ppConfig" not in prompt                    # scripts stripped
@@ -46,7 +45,7 @@ def test_extract_calls_llm_with_week_scheduler_prompt():
 
 def test_extract_accepts_legacy_html_candidate():
     html = Path("tests/fixtures/dc730/sample-pub.html").read_text()
-    with patch("scripts.shared.extraction._client", _fake_client(ONE_EVENT)):
+    with patch("scripts.shared.extraction._call_model", return_value=_fake_msg(ONE_EVENT)):
         out = DC730Source().extract({"doc_publication_date": "2026-04-25", "html": html})
     assert len(out) == 1
 
@@ -55,7 +54,7 @@ def test_external_id_is_stable_across_fetch_dates():
     # Same event fetched on two different days must map to the same staging row.
     raw_a = {"fetched_on": "2026-04-25", "text": "..."}
     raw_b = {"fetched_on": "2026-04-26", "text": "..."}
-    with patch("scripts.shared.extraction._client", _fake_client(ONE_EVENT)):
+    with patch("scripts.shared.extraction._call_model", return_value=_fake_msg(ONE_EVENT)):
         a = DC730Source().extract(raw_a)
         b = DC730Source().extract(raw_b)
     assert a[0]["external_id"] == b[0]["external_id"]
@@ -89,7 +88,7 @@ def test_cursor_is_saved_only_after_a_successful_real_run():
     with patch("scripts.data_import.dc730.run.requests.get", return_value=_fake_response(html)), \
          patch("scripts.data_import.dc730.run._last_cursor", return_value="stale"), \
          patch("scripts.data_import.dc730.run._save_cursor") as save, \
-         patch("scripts.shared.extraction._client", _fake_client(ONE_EVENT)):
+         patch("scripts.shared.extraction._call_model", return_value=_fake_msg(ONE_EVENT)):
         src = DC730Source()
         items = src.fetch()
         assert len(items) == 1 and items[0]["text"]

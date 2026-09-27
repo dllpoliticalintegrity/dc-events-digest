@@ -23,7 +23,7 @@ def test_extract_calls_llm_and_normalizes():
         "html": article_html,
     }
 
-    with patch("scripts.shared.extraction._client", MagicMock(messages=MagicMock(create=MagicMock(return_value=fake_msg)))):
+    with patch("scripts.shared.extraction._call_model", return_value=fake_msg):
         out = WashingtonianSource().extract(raw)
 
     assert len(out) == 1

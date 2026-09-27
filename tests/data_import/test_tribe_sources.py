@@ -72,3 +72,10 @@ def test_cost_and_type_helpers():
     assert cost_tags("") == []
     assert classify_type("Jazz Night", "community") == "music"
     assert classify_type("Board meeting", "community") == "community"
+
+
+def test_403_from_the_host_skips_the_run_instead_of_crashing(capsys):
+    blocked = MagicMock(status_code=403)
+    with patch("scripts.shared.tribe.requests.get", return_value=blocked):
+        assert SixthAndISource().fetch() == []
+    assert "::warning::sixthandi" in capsys.readouterr().out

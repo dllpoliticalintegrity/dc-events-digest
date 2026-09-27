@@ -41,6 +41,48 @@ TAG_KEYWORDS = {
     "happy-hour": ("happy hour",),
 }
 _VENUE_RE = re.compile(r"@\s*([^,()\n]+)")
+# Trailing "(6-8:30pm, $15)" / "(1pm, free)" / "(9:30-11am, free)" on Clockout titles
+_TRAILER_RE = re.compile(r"\s*\(([^()]*)\)\s*$")
+_TIME_RE = re.compile(
+    r"^(?P<h1>\d{1,2})(?::(?P<m1>\d{2}))?\s*(?P<ap1>am|pm)?\s*(?:[-–]\s*(?P<h2>\d{1,2})(?::(?P<m2>\d{2}))?\s*(?P<ap2>am|pm)?)?$",
+    re.I,
+)
+
+
+def _to_24h(h: int, ampm: str | None) -> int:
+    ampm = (ampm or "").lower()
+    if ampm == "pm" and h < 12:
+        return h + 12
+    if ampm == "am" and h == 12:
+        return 0
+    return h
+
+
+def parse_title_trailer(title: str) -> tuple[str, tuple[int, int] | None, tuple[int, int] | None, str | None]:
+    """Split "Film: Seoul (2-4pm, free)" → ("Film: Seoul", (14,0), (16,0), "free").
+
+    Returns (clean_title, start_hm, end_hm, cost_text); start/end are None when
+    the trailer has no recognisable time.
+    """
+    m = _TRAILER_RE.search(title)
+    if not m:
+        return title.strip(), None, None, None
+    parts = [p.strip() for p in m.group(1).split(",")]
+    start = end = None
+    cost = None
+    for part in parts:
+        t = _TIME_RE.match(part)
+        if t and start is None:
+            ap1, ap2 = t.group("ap1"), t.group("ap2")
+            ap1 = ap1 or ap2  # "6-8:30pm" → both pm
+            start = (_to_24h(int(t.group("h1")), ap1), int(t.group("m1") or 0))
+            if t.group("h2"):
+                end = (_to_24h(int(t.group("h2")), ap2 or ap1), int(t.group("m2") or 0))
+        elif part.startswith("$") or part.lower().startswith("free") or "donation" in part.lower():
+            cost = part
+    if start is None and cost is None:
+        return title.strip(), None, None, None
+    return title[: m.start()].strip(), start, end, cost
 
 
 def _classify_type(text: str) -> str:
@@ -138,15 +180,36 @@ class ClockoutSource(SourceBase):
                 venue_match = _VENUE_RE.search(li_text)
                 venue_name = venue_match.group(1).strip() if venue_match else None
 
+                clean_title, start_hm, end_hm, cost = parse_title_trailer(title)
+                day = datetime.fromisoformat(start_iso).astimezone(ET)
+                if start_hm:
+                    start_local = ET.localize(datetime(day.year, day.month, day.day, *start_hm))
+                    start_iso = start_local.isoformat()
+                    end_iso = None
+                    if end_hm:
+                        end_local = ET.localize(datetime(day.year, day.month, day.day, *end_hm))
+                        end_iso = end_local.isoformat() if end_local > start_local else None
+                else:
+                    end_iso = None
+
+                tags = _classify_tags(li_text)
+                if cost and cost.lower().startswith("free") and "free" not in tags:
+                    tags = filter_tags(tags + ["free"])
+
                 payload = {
-                    "title": title,
+                    "title": clean_title,
                     "start_at": start_iso,
+                    "end_at": end_iso,
+                    "is_all_day": start_hm is None,
                     "type": _classify_type(li_text),
                     "venue_name": venue_name,
                     "url": url,
-                    "tags": _classify_tags(li_text),
+                    "cost_text": cost,
+                    "tags": tags,
                 }
-                external_id = hashlib.sha1(f"{url}|{start_iso}".encode()).hexdigest()[:16]
+                # Keyed on the URL + calendar day so a time parsed from the title
+                # updates the same row instead of creating a second event.
+                external_id = hashlib.sha1(f"{url}|{day.date().isoformat()}".encode()).hexdigest()[:16]
                 out.append({"external_id": external_id, **payload})
 
         return out
