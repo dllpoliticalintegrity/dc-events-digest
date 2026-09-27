@@ -12,6 +12,10 @@ on:
         description: "Dry run (true/false)"
         required: false
         default: "false"
+      reset_cursor:
+        description: "Forget the source's saved cursor first so it re-processes everything (true/false)"
+        required: false
+        default: "false"
 
 jobs:
   ingest:
@@ -44,6 +48,14 @@ jobs:
       - name: Skip if not in scope
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.source != 'all' && github.event.inputs.source != matrix.source
         run: echo "skipping ${{ matrix.source }}" && exit 0
+      - name: Reset cursor for ${{ matrix.source }}
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.reset_cursor == 'true' && (github.event.inputs.source == 'all' || github.event.inputs.source == matrix.source)
+        run: |
+          python - <<'PY'
+          from scripts.shared.supabase import get_supabase_client
+          res = get_supabase_client().table("ingestion_state").delete().eq("source", "${{ matrix.source }}").execute()
+          print(f"reset cursor for ${{ matrix.source }}: removed {len(res.data or [])} row(s)")
+          PY
       - name: Run ${{ matrix.source }}
         if: github.event_name != 'workflow_dispatch' || github.event.inputs.source == 'all' || github.event.inputs.source == matrix.source
         run: |

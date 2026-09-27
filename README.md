@@ -58,6 +58,8 @@ The GitHub Actions ingest workflow's matrix already includes the new source if y
   migrations in `supabase/migrations/` to the target project before the first run. If GitHub has
   disabled the schedule (Actions → ingest → "Enable workflow"), re-enable it, then run it manually
   with `workflow_dispatch` (`source=730dc`, `dry_run=true`) to check the pipeline before the next cron.
+  Cursor-based sources (730DC, Washingtonian) skip content they have already seen; dispatch with
+  `reset_cursor=true` to make a source re-process everything.
 
 ## License
 
