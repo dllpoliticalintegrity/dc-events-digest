@@ -14,7 +14,7 @@ MODEL = "claude-sonnet-4-6"
 
 PROMPT_TEMPLATE = """You are extracting concrete, scheduled events from an article.
 
-Return JSON ONLY in this exact shape:
+Return compact JSON ONLY (no code fence, no whitespace or newlines between tokens) in this exact shape:
 {{
   "events": [
     {{
@@ -42,9 +42,10 @@ ARTICLE:
 
 _client = Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY", ""))
 
-# A whole newsletter can yield dozens of events (~100 output tokens each);
-# a low cap truncates the JSON mid-array and the entire batch is lost.
-MAX_OUTPUT_TOKENS = 16000
+# A whole newsletter can yield a few hundred events (~80 output tokens each).
+# Streaming lets us use a large cap without hitting HTTP timeouts, and
+# _salvage_events() keeps every complete object if the cap is still hit.
+MAX_OUTPUT_TOKENS = 64000
 
 _FENCE_RE = re.compile(r"^\s*```(?:json)?\s*(.*?)\s*```\s*$", re.DOTALL)
 
@@ -62,17 +63,62 @@ def _response_text(msg: Any) -> str:
     return "".join(parts)
 
 
-def _parse_json(raw: str) -> dict[str, Any] | None:
-    """Parse the model's JSON, tolerating a ```json fence around it."""
+def _strip_fence(raw: str) -> str:
     candidate = raw.strip()
     m = _FENCE_RE.match(candidate)
     if m:
-        candidate = m.group(1)
+        return m.group(1)
+    # An unterminated fence (truncated output) still has an opening line to drop.
+    if candidate.startswith("```"):
+        candidate = candidate.split("\n", 1)[1] if "\n" in candidate else ""
+    return candidate
+
+
+def _salvage_events(raw: str) -> list[Any]:
+    """Recover the complete objects from a truncated `{"events": [ {...}, {...}, {..` string."""
+    start = raw.find("[")
+    if start < 0:
+        return []
+    decoder = json.JSONDecoder()
+    out: list[Any] = []
+    i = start + 1
+    n = len(raw)
+    while i < n:
+        while i < n and raw[i] in " \t\r\n,":
+            i += 1
+        if i >= n or raw[i] != "{":
+            break
+        try:
+            obj, end = decoder.raw_decode(raw, i)
+        except json.JSONDecodeError:
+            break  # the cut-off object; everything before it was complete
+        out.append(obj)
+        i = end
+    return out
+
+
+def _parse_json(raw: str) -> dict[str, Any] | None:
+    """Parse the model's JSON, tolerating a ```json fence and a truncated events array."""
+    candidate = _strip_fence(raw)
     try:
         data = json.loads(candidate or "{}")
+        return data if isinstance(data, dict) else None
     except json.JSONDecodeError:
+        salvaged = _salvage_events(candidate)
+        if salvaged:
+            log.warning("LLM JSON was truncated; salvaged %d complete events", len(salvaged))
+            return {"events": salvaged}
         return None
-    return data if isinstance(data, dict) else None
+
+
+def _call_model(prompt: str) -> Any:
+    """One streamed request; returns the final Message (streaming avoids timeouts at large max_tokens)."""
+    with _client.messages.stream(
+        model=MODEL,
+        max_tokens=MAX_OUTPUT_TOKENS,
+        messages=[{"role": "user", "content": prompt}],
+    ) as stream:
+        return stream.get_final_message()
 
 
 def extract_events(
@@ -87,14 +133,10 @@ def extract_events(
         extra_instructions=extra_instructions or "Extract every concrete event mentioned.",
         article_text=article_text[:20000],
     )
-    msg = _client.messages.create(
-        model=MODEL,
-        max_tokens=MAX_OUTPUT_TOKENS,
-        messages=[{"role": "user", "content": prompt}],
-    )
+    msg = _call_model(prompt)
     if getattr(msg, "stop_reason", None) == "max_tokens":
         log.warning(
-            "LLM output for %s hit max_tokens=%d; events after the cut-off are lost",
+            "LLM output for %s hit max_tokens=%d; only events before the cut-off are kept",
             source_url, MAX_OUTPUT_TOKENS,
         )
     raw = _response_text(msg)

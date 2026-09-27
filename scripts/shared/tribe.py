@@ -87,6 +87,14 @@ class TribeEventsSource(SourceBase):
             if not url:
                 break
             resp = requests.get(url, params=params, headers={"User-Agent": USER_AGENT}, timeout=30)
+            if resp.status_code == 403:
+                # Some hosts (Sixth & I) block GitHub Actions' IP ranges while serving
+                # everyone else. Skip the run instead of failing the whole job; the
+                # ::warning:: line surfaces in the Actions run summary.
+                msg = f"{self.source_key}: {self.base_url} returned 403 — blocked from this network, skipping this run"
+                log.error(msg)
+                print(f"::warning::{msg}", flush=True)
+                return out
             resp.raise_for_status()
             data = resp.json()
             out.extend(data.get("events") or [])
